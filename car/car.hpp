@@ -17,7 +17,7 @@ struct AlignedCircle{
 };
 
 struct DubinsCar{
-    cv::Point position;
+    cv::Point2d position;
     double direction; // angle between heading car and X-axis
     double arc_theta; // angle between vector aligned circle center to car starting position and X-axis
     double radius;

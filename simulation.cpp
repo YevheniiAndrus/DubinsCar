@@ -60,15 +60,15 @@ OuterTangentLines Simulation::calculateTangentLines(
 
 double Simulation::arcLength(DubinsCar& car, const cv::Point& tangent_point){
     // angle of vector aligned circle's center to car position
-    cv::Point v1(car.aligned_circle.center.x - car.position.x,
-                 car.aligned_circle.center.y - car.position.y);
+    cv::Point v1(car.position.x - car.aligned_circle.center.x,
+                 car.position.y - car.aligned_circle.center.y);
     double theta1 = std::atan2(v1.y, v1.x);
     car.arc_theta = theta1;
     std::cout << "theta1: " << theta1 << std::endl;
 
     // angle of vector aligned circel's center to tangent point
-    cv::Point v2(car.aligned_circle.center.x - tangent_point.x,
-                 car.aligned_circle.center.y - tangent_point.y);
+    cv::Point v2(tangent_point.x - car.aligned_circle.center.x,
+                 tangent_point.y - car.aligned_circle.center.y);
     double theta2 = std::atan2(v2.y, v2.x);
     std::cout << "theta2: " << theta2 << std::endl;
 
@@ -81,7 +81,7 @@ double Simulation::arcLength(DubinsCar& car, const cv::Point& tangent_point){
 void Simulation::updateCar(DubinsCar& car, double delta, CarCommands command){
     double current_x = car.position.x;
     double current_y = car.position.y;
-    double current_theta = car.arc_theta;
+    double current_theta = -car.direction; // because OpenCV has Y-axis pointing down
 
     current_x = current_x + delta * std::cos(current_theta);
     current_y = current_y + delta * std::sin(current_theta);
@@ -92,7 +92,7 @@ void Simulation::updateCar(DubinsCar& car, double delta, CarCommands command){
 
     car.position.x = current_x;
     car.position.y = current_y;
-    car.arc_theta = current_theta;
+    car.direction = -current_theta;
 }
 
 void Simulation::run(
@@ -125,7 +125,7 @@ void Simulation::run(
     // draw circle to the left side of goal position
     cv::Point goal_center;
     goal_center.x = m_goal.position.x + m_goal.radius * std::cos(m_goal.direction - M_PI_2);
-    goal_center.y = m_goal.position.y + m_goal.radius * std::sin(m_goal.direction - M_PI_2);
+    goal_center.y = m_goal.position.y - m_goal.radius * std::sin(m_goal.direction - M_PI_2);
     m_goal.aligned_circle.center = goal_center;
     cv::circle(img, goal_center, m_goal.radius, cv::Scalar(0, 0, 255), 1);
 
@@ -142,14 +142,33 @@ void Simulation::run(
     double arc1 = arcLength(m_start, tline_start);
     std::cout << "Arc1 len: " << arc1 << std::endl;
 
-    // // calculate how many times to turn right
+    // // calculate how many times to turn right        
     double delta = 0.01;
-    int rotation_number = static_cast<int>(arc1 / 0.01);
+    int rotation_number = arc1 / delta;
     std::cout << "rotation number: " << rotation_number << std::endl;
 
-    while(rotation_number){
+    while(rotation_number--){
         updateCar(m_start, delta, CarCommands::CAR_RIGHT);
         cv::circle(img, cv::Point(m_start.position.x, m_start.position.y), 2, cv::Scalar(0, 255, 0), 2, cv::LineTypes::FILLED);
-        rotation_number--;
+    }
+
+    // move forward
+    auto tp1 = tline.first;
+    auto tp2 = tline.second;
+    double line_dist = std::sqrt(std::pow(tp2.x - tp1.x, 2) + std::pow(tp2.y - tp1.y, 2));
+    int straight_forward_number = line_dist / delta;
+
+    while(straight_forward_number--){
+        updateCar(m_start, delta, CarCommands::CAR_STRAIGHT);
+        cv::circle(img, cv::Point(m_start.position.x, m_start.position.y), 2, cv::Scalar(0, 255, 0), 2, cv::LineTypes::FILLED);
+    }
+
+    double arc2 = arcLength(m_goal, tline_end);
+    std::cout << "Arc2 len: " << arc2 << std::endl;
+
+    rotation_number = arc2 / delta;
+    while(rotation_number--){
+        updateCar(m_start, delta, CarCommands::CAR_RIGHT);
+        cv::circle(img, cv::Point(m_start.position.x, m_start.position.y), 2, cv::Scalar(0, 255, 0), 2, cv::LineTypes::FILLED);
     }
 }

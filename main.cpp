@@ -58,6 +58,26 @@ int main(){
     Simulation sim(start, goal);
     sim.run(blank);
 
+    // cv::circle(blank, cv::Point(img_width / 2, img_height / 2), 2, cv::Scalar(0, 255, 0), 2, cv::LineTypes::FILLED);
+    // double radius = 100;
+    // double phi = -M_PI / 2;
+
+    // double x = img_width / 2 + radius;
+    // double y = img_height / 2;
+
+    // double delta = 0.01;
+    // double len = 2 * M_PI  * radius;``
+    // int timestamps_count = len / delta;
+
+    // while(timestamps_count--){
+    //     x = x + delta * std::cos(phi);
+    //     y = y + delta * std::sin(phi);
+    //     phi = phi - delta / radius;
+
+    //     cv::circle(blank, cv::Point(x, y), 2, cv::Scalar(0, 255, 0), 2, cv::LineTypes::FILLED);
+    // }
+
+
     cv::imshow("test", blank);
     cv::waitKey(0);
     return 0;
