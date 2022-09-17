@@ -3,7 +3,7 @@
 #include "car/car.hpp"
 #include <opencv2/opencv.hpp>
 
-using TangentLine = std::pair<cv::Point, cv::Point>;
+using TangentLine = std::pair<Point, Point>;
 using OuterTangentLines = std::pair<TangentLine, TangentLine>;
 
 enum class CarCommands{
@@ -17,9 +17,18 @@ public:
     void run(cv::Mat& img);
 
 private:
-    static OuterTangentLines calculateTangentLines(const DubinsCar& car1,
-                                              const DubinsCar& car2);
-    static double arcLength(DubinsCar& car, const cv::Point& tangent_point);
+    // calculate outer tangent lines between two circles
+    static OuterTangentLines calculateTangentLines(const double x1, const double y1,
+                                    const double r1, const double x2, const double y2,
+                                    const double r2);
+
+    // length of arc of circle c (x, y) with radius r
+    // between point (x1, y1) and (x2, y2)
+    static double arcLength(const double x1, const double y1,
+                            const double x2, const double y2,
+                            const double cx, const double cy,
+                            const double r,
+                            double& theta);
 
     void updateCar(DubinsCar& car, double delta, CarCommands command);
 

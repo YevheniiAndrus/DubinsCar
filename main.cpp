@@ -53,8 +53,8 @@ int main(){
     int img_height = 768;
     cv::Mat blank = cv::Mat(cv::Size(img_width, img_height), CV_8UC3, cv::Scalar(255, 255, 255));
     
-    DubinsCar start(cv::Point(200, 250), 40, M_PI / 10);
-    DubinsCar goal(cv::Point(660, 440), 40, -M_PI / 2);    
+    DubinsCar start(Point(200, 250), 40, M_PI / 10);
+    DubinsCar goal(Point(660, 440), 40, -M_PI / 2);    
     Simulation sim(start, goal);
     sim.run(blank);
 
